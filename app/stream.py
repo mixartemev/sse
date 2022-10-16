@@ -1,3 +1,4 @@
+import json
 from time import time
 
 from sse_starlette import EventSourceResponse
@@ -26,5 +27,5 @@ async def event_generator(request: Request):
         yield {
             "event": "message",
             "id": int(time()),
-            "data": data
+            "data": json.dumps(data)
         }
