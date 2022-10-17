@@ -45,11 +45,10 @@ with db_session:  # curs + pts
 
     Pt(group=8, curs=[USD, EUR, TRY], name="KoronaPay"),  # blocked in Russia
 
-with db_session:
-    Coin(name='USDT', cur=True)
-    Coin(name='BTC', cur=True)
-    Coin(name='ETH', cur=True)
-    Coin(name='BNB', cur=True)
-    Coin(name='BUSD', cur=True)
-
+    Coin(name='USDT', is_cur=True, curs=[RUB, USD, EUR, TRY])
+    Coin(name='BTC', is_cur=True, curs=[RUB, USD, EUR, TRY])
+    Coin(name='ETH', is_cur=True, curs=[RUB, USD, EUR, TRY])
+    Coin(name='BNB', is_cur=True, curs=[RUB, USD, EUR, TRY])
+    Coin(name='BUSD', is_cur=True, curs=[RUB, USD, EUR, TRY])
+    Coin(name='RUB', is_cur=True, curs=[RUB])
     Ex(name='bc2c', group=5)

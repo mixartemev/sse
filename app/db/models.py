@@ -1,5 +1,5 @@
 from datetime import datetime
-from pony.orm import Required, Set, PrimaryKey, Optional, composite_key
+from pony.orm import Required, Set, PrimaryKey, Optional, composite_key, composite_index
 from app.loader import db
 
 
@@ -8,33 +8,35 @@ class Ex(db.Entity):
     group = Required(int)
     link = Optional(str)
     ads = Set('BestAd')
-    prices = Set('Prices')
+    prices = Set('Price')
     fees = Set('Fee')
 
 
 class Cur(db.Entity):
     name = PrimaryKey(str)
     ads = Set('BestAd')
-    prices = Set('Prices')
+    prices = Set('Price')
     pts = Set('Pt')
     fees = Set('Fee')
+    coins = Set('Coin')
 
 
 class Coin(db.Entity):
     name = PrimaryKey(str)
-    cur = Required(bool, sql_default=False)
+    is_cur = Required(bool, sql_default=False)
     ads = Set('BestAd')
-    prices = Set('Prices')
+    prices = Set('Price')
     fees = Set('Fee')
+    curs = Set(Cur)
 
 
 class Fee(db.Entity):
     cur = Required(Cur)
     coin = Required(Coin)
     ex = Required(Ex)
-    isSell = Required(bool)
+    is_sell = Required(bool)
     fee = Required(float)
-    PrimaryKey(cur, coin, isSell, ex)
+    PrimaryKey(cur, coin, is_sell, ex)
 
 
 class Pt(db.Entity):
@@ -42,34 +44,34 @@ class Pt(db.Entity):
     group = Required(int)
     curs = Set(Cur)
     ads = Set('BestAd')
-    prices = Set('Prices')
+    prices = Set('Price')
 
 
 class BestAd(db.Entity):
     id = PrimaryKey(int, size=64)
     coin = Required(Coin)
     cur = Required(Cur)
-    isSell = Required(bool)
+    is_sell = Required(bool)
     ex = Required(Ex)
     price = Required(float)
     maxFiat = Optional(float)
     minFiat = Optional(float)
     pts = Set(Pt)
-    created_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
-    updated_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
-    composite_key(coin, cur, isSell, ex)
+    created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
+    updated_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
+    composite_key(coin, cur, is_sell, ex)
 
 
-class Prices(db.Entity):
-    adId = PrimaryKey(int, size=64)
+class Price(db.Entity):
+    # id = PrimaryKey(int, auto=True)  # no need, its default behavior
     coin = Required(Coin)
     cur = Required(Cur)
-    isSell = Required(bool)
+    is_sell = Required(bool)
     ex = Required(Ex)
     price = Required(float)
     pts = Set(Pt)
-    created_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
-    composite_key(coin, cur, isSell, created_at, ex)
+    created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
+    composite_index(coin, cur, is_sell)
 
 
 # class MyAd(db.Entity):
@@ -83,8 +85,8 @@ class Prices(db.Entity):
 #     maxFiat = Optional(float)
 #     minFiat = Optional(float)
 #     pts = Set(Pt)
-#     created_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
-#     updated_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
+#     created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
+#     updated_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
 #     composite_key(coin, cur, isSell, ex)  # for only one the best ad existence without history
 
 
@@ -99,22 +101,27 @@ class Prices(db.Entity):
 #     maxFiat = Optional(float)
 #     minFiat = Optional(float)
 #     pts = Set(Pt)
-#     created_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
-#     updated_at = Required(datetime, sql_default='CURRENT_TIMESTAMP')
+#     created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
+#     updated_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
 #     composite_key(coin, cur, isSell, ex)  # for only one the best ad existence without history
 
 
-class Ads:
+class Prices:
     def __init__(self, adv: {}, banks: [str], ex: str):
-        self.id: int = int(adv['advNo']) - 10 ** 19
-        self.isSell: bool = adv['tradeType'] == 'BUY'  # inverse
+        self.is_sell: bool = adv['tradeType'] == 'BUY'  # inverse
         self.coin: str = adv['asset']
         self.cur: str = adv['fiatUnit']
         self.price: float = float(adv['price'])
         self.pts: [Pt] = [Pt[tm] for tm in banks if tm in [a['identifier'] for a in adv['tradeMethods']]]
+        self.ex: str = ex
+
+
+class Ads(Prices):
+    def __init__(self, adv: {}, banks: [str], ex: str):
+        super().__init__(adv, banks, ex)
+        self.id: int = int(adv['advNo']) - 10 ** 19
         self.minFiat: float = float(adv['minSingleTransAmount'])
         self.maxFiat: float = float(adv['dynamicMaxSingleTransAmount'])
-        self.ex: str = ex
         # self.updated_at: datetime = datetime.now()
 
 

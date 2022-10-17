@@ -8,7 +8,7 @@ from app.bc2c.main import cycle
 
 
 async def sse(request: Request):
-    return EventSourceResponse(event_generator(request), headers={'Access-Control-Allow-Origin': '*'})
+    return EventSourceResponse(event_generator(request), headers={'Access-Control-Allow-Origin': '*'}, ping=60)
 
 
 async def event_generator(request: Request):

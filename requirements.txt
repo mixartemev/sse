@@ -1,3 +1,5 @@
+aiohttp
+pony
 psycopg2-binary
 sse_starlette
 uvicorn

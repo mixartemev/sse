@@ -55,7 +55,7 @@ async def balance(user: dict, spot0fond1: 0 | 1 = 1):  # payment methods
     return res['data'][spot0fond1]['assetBalances'] if res.get('data') else None
 
 
-async def get_ads(asset: str, cur: int, sell: bool = False, pts: [str] = None):
+async def get_ads(asset: str, cur: str, sell: int = 0, pts: [str] = None):
     payload = {"page": 1,
                "rows": 5,
                "payTypes": pts,
