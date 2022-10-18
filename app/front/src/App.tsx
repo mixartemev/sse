@@ -3,7 +3,6 @@ import './App.css'
 import 'chartjs-adapter-date-fns'
 import {
     Chart as ChartJS,
-    CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
@@ -17,7 +16,6 @@ import {Scatter} from 'react-chartjs-2'
 import _ from "lodash";
 
 ChartJS.register(
-    CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
@@ -32,12 +30,22 @@ const beScales = {
     scales: {
         BTC: {
             type: 'linear' as const,
-            display: true,
             position: 'left' as const,
         },
         ETH: {
             type: 'linear' as const,
-            display: true,
+            position: 'right' as const,
+        },
+    }
+}
+const brScales = {
+    scales: {
+        BNB: {
+            type: 'linear' as const,
+            position: 'left' as const,
+        },
+        RUB: {
+            type: 'linear' as const,
             position: 'right' as const,
         },
     }
@@ -54,6 +62,7 @@ const options = {
 }
 
 const beOpts = _.merge(options, beScales)
+const brOpts = _.merge(options, brScales)
 
 const evtSource = new EventSource("http://127.0.0.1:8000/sse")
 
@@ -68,10 +77,16 @@ let init = {
     USDTRUBt: [],
     BUSDRUBf: [],
     BUSDRUBt: [],
+
     BTCRUBf: [],
     BTCRUBt: [],
     ETHRUBf: [],
     ETHRUBt: [],
+
+    BNBRUBf: [],
+    BNBRUBt: [],
+    RUBRUBf: [],
+    RUBRUBt: [],
 }
 
 const fresh = (pArr: any) => {
@@ -136,6 +151,34 @@ export function App() {
             },
         ],
     }
+    const bnbrub = {
+        datasets: [
+            {
+                label: 'BNB/RUB Buy',
+                data: points.BNBRUBf,
+                borderColor: 'rgb(53, 162, 235)',
+                yAxisID: 'BNB',
+            },
+            {
+                label: 'RUB/RUB Buy',
+                data: points.RUBRUBf,
+                borderColor: 'blue',
+                yAxisID: 'RUB',
+            },
+            {
+                label: 'BNB/RUB Sell',
+                data: points.BNBRUBt,
+                borderColor: 'rgb(255, 112, 73)',
+                yAxisID: 'BNB',
+            },
+            {
+                label: 'RUB/RUB Sell',
+                data: points.RUBRUBt,
+                borderColor: 'red',
+                yAxisID: 'RUB',
+            },
+        ],
+    }
 
     evtSource.onmessage = (event) => {
         const nd = JSON.parse(event.data)
@@ -161,5 +204,6 @@ export function App() {
     return <div>
         <Scatter options={options} data={usd}/>
         <Scatter options={beOpts} data={btceth}/>
+        <Scatter options={brOpts} data={bnbrub}/>
     </div>;
 }
