@@ -38,8 +38,8 @@ async def cycle(is_first_cycle: bool = False):
                         ad0['updated_at'] = datetime.now()
                         BestAd.get(**unq).set(**ad0)
                     else:
-                        if ad := BestAd.get(**unq):
-                            ad.delete()
+                        if ba := BestAd.get(**unq):
+                            ba.delete()
                         BestAd(**ad0)
 
                     key = f"{coin}{cur.name}{('f', 't')[isSell]}"
