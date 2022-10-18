@@ -49,9 +49,6 @@ const options = {
         x: {
             // type: 'timeseries' as const,
             type: 'time' as const,
-            time: {
-                // minUnit: 'second' as const,
-            },
         },
     },
 }
@@ -60,7 +57,7 @@ const beOpts = _.merge(options, beScales)
 
 const evtSource = new EventSource("http://127.0.0.1:8000/sse")
 
-evtSource.onopen = (e) => console.log("Connected.", e)
+evtSource.onopen = (/*e*/) => console.log("Connected."/*, e*/)
 
 evtSource.addEventListener("ping", (event) => console.log(`ping: ${event.data}`))
 
@@ -75,6 +72,13 @@ let init = {
     BTCRUBt: [],
     ETHRUBf: [],
     ETHRUBt: [],
+}
+
+const fresh = (pArr: any) => {
+    if (pArr.length > 1 && pArr[0].x < Date.now()-60*60*1000) {
+        pArr.shift();
+        fresh(pArr)
+    }
 }
 
 export function App() {
@@ -137,16 +141,21 @@ export function App() {
         const nd = JSON.parse(event.data)
         const pc = structuredClone(points)
         for (const k in pc) {
-            if (pc[k].length && pc[k].slice(-1)[0].y == nd[k][0].y) {
-                pc[k].pop()
+            if (nd[k]) { // at least 1 new point received
+                if (pc[k].length > 1) { // old points exists in chart
+                    if (pc[k].slice(-1)[0].y == nd[k][0].y) { // the last point in chart == new received point
+                        pc[k].pop() //todo: prev-prev point check
+                    }
+                    fresh(pc[k])
+                }
+                pc[k].push(...nd[k])
             }
-            pc[k].push(...nd[k])
         }
         setPoints(pc)
     }
 
     useEffect(() => {
-        console.log(points)
+        // console.log(points)
     }, [points]);
 
     return <div>

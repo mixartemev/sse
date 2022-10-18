@@ -12,8 +12,8 @@ async def cycle(is_first_cycle: bool = False):
     ads = {}
     with db_session:
         if is_first_cycle:
-            prev_prices = db.select("select concat(coin, cur, is_sell), array_agg(created_at), array_agg(price) from price where created_at > current_date - interval '30 minutes' and cur = 'RUB' group by (coin, cur, is_sell)")[:]
-            prev_prices = {pp[0]: [{"x": int(z[0].timestamp()), "y": z[1]} for z in zip(pp[1], pp[2])] for pp in prev_prices}
+            prev_prices = db.select("select concat(coin, cur, is_sell), array_agg(created_at), array_agg(price) from price where created_at > current_timestamp - interval '60 minutes' and cur = 'RUB' group by (coin, cur, is_sell)")[:]
+            prev_prices = {pp[0]: [{"x": z[0].timestamp()*1000, "y": z[1]} for z in zip(pp[1], pp[2])] for pp in prev_prices}
             prev_prices = {k: [row for row in sorted(v, key=lambda r: r['x'])] for k, v in prev_prices.items()}
             return prev_prices
 
@@ -47,7 +47,7 @@ async def cycle(is_first_cycle: bool = False):
                         p = Prices(res[0]['adv'], pts, 'bc2c')
                         Price(**p.__dict__)
 
-                    ads[key] = [{"x": int(time()), "y": ad0['price']}]  # ad0['id'],
+                    ads[key] = [{"x": time()*1000, "y": ad0['price']}]  # ad0['id'],
 
                     # # Get fees info: it's no need to run every cycle
                     # if (f := float(res[0]['adv']['commissionRate'])) != fees.get(key):
