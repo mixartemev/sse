@@ -42,6 +42,7 @@ class Fee(db.Entity):
 class Pt(db.Entity):
     name = PrimaryKey(str)
     group = Required(int)
+    rank = Optional(int, sql_default=1)
     curs = Set(Cur)
     ads = Set('BestAd')
     prices = Set('Price')
@@ -112,7 +113,7 @@ class Prices:
         self.coin: str = adv['asset']
         self.cur: str = adv['fiatUnit']
         self.price: float = float(adv['price'])
-        self.pts: [Pt] = [Pt[tm] for tm in banks if tm in [a['identifier'] for a in adv['tradeMethods']]]
+        self.pts: [Pt] = [pt for pt in banks if pt.name in [a['identifier'] for a in adv['tradeMethods']]]
         self.ex: str = ex
 
 

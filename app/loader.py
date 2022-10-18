@@ -2,7 +2,7 @@ from deta import Deta
 from pony.orm import Database, set_sql_debug
 
 db = Database()
-set_sql_debug(True)
+# set_sql_debug(True)
 db.bind(provider='postgres', user='artemiev', password='', host='localhost', database='arbitrage')
 
 deta = Deta('c05c0tj9_w5FFYcKFyUiCr5X9c3sBK29hitinzzQD')

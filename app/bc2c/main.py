@@ -4,7 +4,7 @@ from anyio import run
 from pony.orm import db_session
 from pony.orm.core import select
 from app.bc2c.binance_client import get_ads
-from app.db.models import Cur, BestAd, Ads, Price, Prices  # , Coin, Fee  # for Fees
+from app.db.models import Cur, BestAd, Ads, Price, Prices, Pt  # , Coin, Fee  # for Fees
 from app.loader import db
 
 
@@ -27,10 +27,10 @@ async def cycle(is_first_cycle: bool = False):
         # fees = {f[0]: f[1] for f in fees}
 
         for cur in select(c for c in Cur if c.name == 'RUB')[:].to_list():
-            pts = list(cur.pts.name)
-            for coin in cur.coins.name:
-                for isSell in (0, 1):
-                    res = await get_ads(coin, cur.name, isSell, pts)
+            for isSell in (0, 1):
+                pts = cur.pts.select(lambda pt: pt.rank > 0)[:]  # no pt filter for sales
+                for coin in cur.coins.name:
+                    res = await get_ads(coin, cur.name, isSell, None if isSell else [pt.name for pt in pts])
                     ad0 = Ads(res[0]['adv'], pts, 'bc2c').__dict__
                     unq = {k: v for k, v in ad0.items() if k in ['coin', 'cur', 'is_sell', 'ex']}
 
@@ -44,7 +44,7 @@ async def cycle(is_first_cycle: bool = False):
 
                     key = f"{coin}{cur.name}{('f', 't')[isSell]}"
                     if last_price.get(key) != ad0['price']:
-                        p = Prices(res[0]['adv'], pts, 'bc2c')
+                        p = Prices(res[0]['adv'], ad0['pts'], 'bc2c')
                         Price(**p.__dict__)
 
                     ads[key] = [{"x": time()*1000, "y": ad0['price']}]  # ad0['id'],
