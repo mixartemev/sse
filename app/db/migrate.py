@@ -11,8 +11,8 @@ with db_session:  # curs + pts
     Pt(group=0, curs=[USD, EUR, TRY], name='CashInPerson')
     Pt(group=0, curs=[USD, EUR, TRY], name="BANK"),  # blocked in Russia
 
-    Pt(group=4, curs=[RUB, USD, EUR, TRY], name="Advcash"),  # , KZT
-    Pt(group=5, curs=[USD, EUR, TRY], name="Payeer"),
+    # Pt(group=4, curs=[RUB, USD, EUR, TRY], name="Advcash"),  # , KZT
+    # Pt(group=5, curs=[USD, EUR, TRY], name="Payeer"),
 
     # # # Russia
     Pt(group=1, curs=[RUB], name="TinkoffNew"),
@@ -31,7 +31,7 @@ with db_session:  # curs + pts
     Pt(group=2, curs=[RUB], name="YandexMoneyNew"),
     Pt(group=3, curs=[RUB], name="QIWI"),
 
-    Pt(group=6, curs=[RUB], name="RUBfiatbalance"),
+    # Pt(group=6, curs=[RUB], name="RUBfiatbalance"),
 
     Pt(group=7, curs=[USD, EUR, TRY], name="BanktransferTurkey"),
     Pt(group=7, curs=[USD, EUR, TRY], name="alBaraka"),
