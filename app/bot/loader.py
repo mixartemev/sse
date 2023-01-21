@@ -17,7 +17,7 @@ available_updates = (
     "message", "callback_query", "chat_member", "edited_message",
     # "pre_checkout_query", "shipping_query",
     # "inline_query", "chosen_inline_result",
-    # "my_chat_member", "poll_answer", "poll", "channel_post", "edited_channel_post"
+    "my_chat_member",  # "poll_answer", "poll", "channel_post", "edited_channel_post"
 )
 
 commands = [
@@ -27,14 +27,3 @@ commands = [
     {'command': 'run', 'description': 'Run deals receiving'},
     {'command': 'stop', 'description': 'Stop deals receiving'},
 ]
-
-from deta import Deta
-from pony.orm import Database, set_sql_debug
-
-db = Database()
-# set_sql_debug(True)
-db.bind(provider='postgres', user='artemiev', password='', host='localhost', database='arbitrage')
-
-deta = Deta('c05c0tj9_w5FFYcKFyUiCr5X9c3sBK29hitinzzQD')
-users_db = deta.Base("users")
-def_user = users_db.get('357058112')

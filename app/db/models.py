@@ -7,24 +7,26 @@ class Ex(db.Entity):
     name = PrimaryKey(str)
     group = Required(int)
     link = Optional(str)
-    ads = Set('BestAd')
+    ads = Set('Ad')
     prices = Set('Price')
     fees = Set('Fee')
+    users = Set('User')
 
 
 class Cur(db.Entity):
     name = PrimaryKey(str)
-    ads = Set('BestAd')
+    ads = Set('Ad')
     prices = Set('Price')
     pts = Set('Pt')
     fees = Set('Fee')
     coins = Set('Coin')
+    users = Set('User')
 
 
 class Coin(db.Entity):
     name = PrimaryKey(str)
     is_cur = Required(bool, sql_default=False)
-    ads = Set('BestAd')
+    ads = Set('Ad')
     prices = Set('Price')
     fees = Set('Fee')
     curs = Set(Cur)
@@ -44,11 +46,26 @@ class Pt(db.Entity):
     group = Required(int)
     rank = Optional(int, sql_default=1)
     curs = Set(Cur)
-    ads = Set('BestAd')
+    ads = Set('Ad')
     prices = Set('Price')
 
 
-class BestAd(db.Entity):
+class User(db.Entity):
+    tg_id = Optional(int)
+    exs = Set(Ex)
+    gmail = Required(str)
+    uid = PrimaryKey(int)  # binance id
+    no = Optional(str)
+    nick = Optional(str)
+    cook = Optional(str)
+    tok = Optional(str)
+    cur = Optional(Cur, sql_default=1)
+    ran = Optional(bool, sql_default=False)
+    ads = Set('Ad')
+    orders = Set('Order')
+
+
+class Ad(db.Entity):
     id = PrimaryKey(int, size=64)
     coin = Required(Coin)
     cur = Required(Cur)
@@ -58,6 +75,7 @@ class BestAd(db.Entity):
     maxFiat = Optional(float)
     minFiat = Optional(float)
     pts = Set(Pt)
+    user = Required(User)
     created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
     updated_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
     composite_key(coin, cur, is_sell, ex)
@@ -91,20 +109,14 @@ class Price(db.Entity):
 #     composite_key(coin, cur, isSell, ex)  # for only one the best ad existence without history
 
 
-# class Order(db.Entity):
-#     id = PrimaryKey(int, size=64)
-#     coin = Required(Coin)
-#     cur = Required(Cur)
-#     isSell = Required(bool)
-#     ex = Required(Ex)
-#     fee = Required(float)
-#     price = Required(float)
-#     maxFiat = Optional(float)
-#     minFiat = Optional(float)
-#     pts = Set(Pt)
-#     created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
-#     updated_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
-#     composite_key(coin, cur, isSell, ex)  # for only one the best ad existence without history
+class Order(db.Entity):
+    id = PrimaryKey(int)
+    ad: Required(Ad)
+    amount: Required(float)
+    pt: Required(Pt)
+    status: Required(int, sql_default=1)
+    user = Required(User)
+    created_at = Required(datetime, precision=0, sql_default='CURRENT_TIMESTAMP')
 
 
 class Prices:

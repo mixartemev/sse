@@ -4,7 +4,7 @@ from anyio import run
 from pony.orm import db_session
 from pony.orm.core import select
 from app.bc2c.binance_client import get_ads
-from app.db.models import Cur, BestAd, Ads, Price, Prices, Pt  # , Coin, Fee  # for Fees
+from app.db.models import Cur, Ad, Ads, Price, Prices, Pt  # , Coin, Fee  # for Fees
 from app.loader import db
 
 
@@ -20,7 +20,7 @@ async def cycle(is_first_cycle: bool = False):
         last_price = db.select("select distinct(concat(coin, cur, is_sell)), first_value(price) over (partition by coin, cur, is_sell order by created_at desc) as last_price from price")[:]
         last_price = {lp[0]: lp[1] for lp in last_price}
 
-        ids = select(ba.id for ba in BestAd)[:].to_list()
+        ids = select(ba.id for ba in Ad)[:].to_list()
 
         # # Get fees info: it's no need to run every cycle
         # fees = select((raw_sql('concat(coin, cur, is_sell)'), f.fee) for f in Fee)[:]
@@ -36,11 +36,11 @@ async def cycle(is_first_cycle: bool = False):
 
                     if ad0['id'] in ids:
                         ad0['updated_at'] = datetime.now()
-                        BestAd.get(**unq).set(**ad0)
+                        Ad.get(**unq).set(**ad0)
                     else:
-                        if ba := BestAd.get(**unq):
+                        if ba := Ad.get(**unq):
                             ba.delete()
-                        BestAd(**ad0)
+                        Ad(**ad0)
 
                     key = f"{coin}{cur.name}{('f', 't')[isSell]}"
                     if last_price.get(key) != ad0['price']:

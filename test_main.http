@@ -9,3 +9,8 @@ GET http://127.0.0.1:8000/
 Accept: application/json
 
 ###
+
+
+GET https://api.footcareer.com/desktop/posts/2
+x-auth-token: 4843fa300808b9cba4346e376cb59c4cee7ac493b69ee9663ec7b0d980ac5f188d1f46551681a61824e2e112593942659f48b900b42c1aa4d5ca006d61afd9a85493d8cf2a575ddcc5c9ce89d85faf1e89eefebc7d3bc9679328075165ed1b7110aff05c9b4bf4a12eb8b5
+###
